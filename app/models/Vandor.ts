@@ -7,7 +7,7 @@ interface VandorDoc extends Document<Types.ObjectId> {
     pincode: string;
     address: string;
     phone: string;
-    email:string;
+    email: string;
     password: string;
     salt: string;
     serviceAvailable: boolean;
@@ -22,19 +22,19 @@ const VandorSchema = new Schema({
     ownerName: { type: String },
     foodType: { type: [String] },
     pincode: { type: String },
-    address:{ type: String },
-    phone:{ type: String },
-    email:{ type: String },
+    address: { type: String },
+    phone: { type: String },
+    email: { type: String },
     password: { type: String },
     salt: { type: String },
     serviceAvailable: { type: Boolean },
     coverImage: { type: [String] },
     rating: { type: Number },
-    token: { type: String, default: null }
-    // foods: [{
-    //     type: mongoose.SchemaTypes.ObjectId,
-    //     ref: 'food'
-    // }]
+    token: { type: String, default: null },
+    foods: [{
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: 'food'
+    }]
 }, {
     timestamps: true
 })

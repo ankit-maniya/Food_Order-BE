@@ -15,18 +15,18 @@ export const GeneratePassword = async (password: string, salt: string) => {
     return await bcrypt.hash(password, salt);
 }
 
-export const ValidatePassword = async(password: string, savedPassword: string, salt?: string) => {
+export const ValidatePassword = async (password: string, savedPassword: string, salt?: string) => {
     return await bcrypt.compare(password, savedPassword);
 }
 
-export const GenerateSignature = async(payload: VandorPayload) => {
+export const GenerateSignature = async (payload: VandorPayload) => {
     return await jwt.sign(payload, APP_SECRATE, { expiresIn: '10h' })
 }
 
-export const validateSignature = async(req: Request) => {
+export const validateSignature = async (req: Request) => {
     const signature = req.get('Authorization');
 
-    if(!signature)
+    if (!signature)
         return false
 
     try {

@@ -7,7 +7,7 @@ export interface CreateVandorInput {
     pincode: string;
     address: string;
     phone: string;
-    email:string;
+    email: string;
     password: string;
 }
 

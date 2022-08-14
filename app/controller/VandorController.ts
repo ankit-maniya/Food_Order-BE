@@ -6,20 +6,20 @@ import { VandorLoginInput, VandorServiceUpdateInput, VandorUpdateInput } from '.
 import { GenerateSignature, ValidatePassword } from '../utility';
 import { Vandor } from '../models';
 
-export const VandorLogin = async(req:Request, res: Response, next: NextFunction) => {
+export const VandorLogin = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = <VandorLoginInput>req.body;
 
     try {
-        if(!email || !password) {
+        if (!email || !password) {
             return res.json({ message: 'Please filled required fields!' });
         }
 
         let existingVandor = await FindVandor(undefined, email);
-        if(!existingVandor)
+        if (!existingVandor)
             return res.json({ message: 'Vandor Not found!' })
 
         const isValidPassword = await ValidatePassword(password, existingVandor.password);
-        if(!isValidPassword)
+        if (!isValidPassword)
             return res.json({ message: 'Invalid Password!' })
 
         const signature = await GenerateSignature({
@@ -37,9 +37,9 @@ export const VandorLogin = async(req:Request, res: Response, next: NextFunction)
     }
 }
 
-export const GetVandorProfile = async(req: Request, res: Response, next: NextFunction) => {
+export const GetVandorProfile = async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-    if(user)
+    if (user)
         try {
             const existingUser = await FindVandor(user._id);
             return res.json(existingUser)
@@ -49,40 +49,62 @@ export const GetVandorProfile = async(req: Request, res: Response, next: NextFun
     return res.json({ message: "Auth token has been expired!" })
 }
 
-export const UpdateVandorProfile = async(req: Request, res: Response, next: NextFunction) => {
+export const UpdateVandorProfile = async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
     const { email, name, foodtype, address, phone, pincode } = <VandorUpdateInput>req.body;
-    if(user)
+    if (user)
         try {
             const existingUser = await FindVandor(user._id);
 
-            if(existingUser)
+            if (existingUser)
                 existingUser.email = email;
-                existingUser!.address = address;
-                existingUser!.name = name;
+            existingUser!.address = address;
+            existingUser!.name = name;
 
-                const isUpdateUser = await existingUser!.save();
-                return res.json(isUpdateUser)
+            const isUpdateUser = await existingUser!.save();
+            return res.json(isUpdateUser)
         } catch (error) {
             return res.json({ message: "Some error occure in UpdateVandorProfile!" })
         }
     return res.json({ message: "Auth token has been expired!" })
 }
 
-export const UpdateVandorService = async(req: Request, res: Response, next: NextFunction) => {
+export const UpdateVandorService = async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
     const { serviceAvailable } = <VandorServiceUpdateInput>req.body;
-    if(user)
+    if (user)
         try {
             const existingUser = await FindVandor(user._id);
 
-            if(existingUser)
+            if (existingUser)
                 existingUser.serviceAvailable = serviceAvailable;
 
-                const updatedVandor = await existingUser!.save();
-                return res.json(updatedVandor)
+            const updatedVandor = await existingUser!.save();
+            return res.json(updatedVandor)
         } catch (error) {
             return res.json({ message: "Some error occure in UpdateVandorService!" })
+        }
+    return res.json({ message: "Auth token has been expired!" })
+}
+
+export const GetFood = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    if (user)
+        try {
+            return res.json('')
+        } catch (error) {
+            return res.json({ message: "Some error occure in GetFood!" })
+        }
+    return res.json({ message: "Auth token has been expired!" })
+}
+
+export const AddFood = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    if (user)
+        try {
+            return res.json('')
+        } catch (error) {
+            return res.json({ message: "Some error occure in AddFood!" })
         }
     return res.json({ message: "Auth token has been expired!" })
 }

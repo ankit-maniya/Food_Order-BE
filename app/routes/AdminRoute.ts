@@ -11,4 +11,4 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
     res.json(' Admin router - get')
 })
 
-export  { router as AdminRoute }  
+export { router as AdminRoute }  
