@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import path from 'path';
 
 import { AdminRoute, VandorRoute } from './app/routes';
 import { MONGO_URI } from './app/config';
@@ -12,6 +13,7 @@ app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use('/images', express.static(path.join(__dirname, 'images')))
 app.use('/admin', AdminRoute)
 app.use('/vandor', VandorRoute)
 

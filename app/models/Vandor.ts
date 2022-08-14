@@ -11,7 +11,7 @@ interface VandorDoc extends Document<Types.ObjectId> {
     password: string;
     salt: string;
     serviceAvailable: boolean;
-    coverImage: [string];
+    coverImages: [string];
     rating: number;
     foods: any;
     token: string;
@@ -28,7 +28,7 @@ const VandorSchema = new Schema({
     password: { type: String },
     salt: { type: String },
     serviceAvailable: { type: Boolean },
-    coverImage: { type: [String] },
+    coverImages: { type: [String] },
     rating: { type: Number },
     token: { type: String, default: null },
     foods: [{

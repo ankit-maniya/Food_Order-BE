@@ -42,7 +42,7 @@ export const CreateVandor = async (req: Request, res: Response, next: NextFuncti
         password: userPassword,
         salt,
         serviceAvailable: false,
-        coverImage: [],
+        coverImages: [],
         foods: []
     })
 

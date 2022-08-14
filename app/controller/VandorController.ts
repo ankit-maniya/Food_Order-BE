@@ -96,6 +96,27 @@ export const UpdateVandorService = async (req: Request, res: Response, next: Nex
     return res.json({ message: "Auth token has been expired!" })
 }
 
+export const UpdateCoverImages = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    if (user)
+        try {
+            const vandor = await FindVandor(user._id);
+
+            if (!vandor)
+                return res.json({ message: "Vandor not found!" })
+
+            const files = req.files as [Express.Multer.File];
+            const coverImages = files.map((file: Express.Multer.File) => file.filename);
+
+            vandor.coverImages.push(...coverImages)
+            const updatedVandor = await vandor.save();
+            return res.json(updatedVandor)
+        } catch (error) {
+            return res.json({ message: "Some error occure in UpdateCoverImages!" })
+        }
+    return res.json({ message: "Auth token has been expired!" })
+}
+
 export const AddFood = async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
     if (user)
@@ -113,6 +134,9 @@ export const AddFood = async (req: Request, res: Response, next: NextFunction) =
                 readyTime
             } = <CreateFoodInput>req.body;
 
+            const files = req.files as [Express.Multer.File];
+            const images = files.map((file: Express.Multer.File) => file.filename);
+
             const createFood = await Food.create({
                 vandorId: vandor._id,
                 name,
@@ -121,7 +145,7 @@ export const AddFood = async (req: Request, res: Response, next: NextFunction) =
                 readyTime,
                 description,
                 foodType,
-                image: ['1.jpg'],
+                images: images,
             })
 
             vandor.foods.push(createFood);
@@ -138,7 +162,12 @@ export const GetFood = async (req: Request, res: Response, next: NextFunction) =
     const user = req.user;
     if (user)
         try {
-            return res.json('')
+            const vandor = await FindVandor(user._id);
+            if (!vandor)
+                return res.json({ message: "Vandor not found!" })
+
+            const allFoods = await Food.find({ vandorId: vandor._id });
+            return res.json(allFoods);
         } catch (error) {
             return res.json({ message: "Some error occure in GetFood!" })
         }
