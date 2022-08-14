@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 
 import { FindVandor } from './AdminController';
 
-import { VandorLoginInput, VandorUpdateInput } from '../dto/index.dto';
+import { VandorLoginInput, VandorServiceUpdateInput, VandorUpdateInput } from '../dto/index.dto';
 import { GenerateSignature, ValidatePassword } from '../utility';
 import { Vandor } from '../models';
 
@@ -69,6 +69,20 @@ export const UpdateVandorProfile = async(req: Request, res: Response, next: Next
     return res.json({ message: "Auth token has been expired!" })
 }
 
-export const UpdateVandorService = (req: Request, res: Response, next: NextFunction) => {
-    
+export const UpdateVandorService = async(req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    const { serviceAvailable } = <VandorServiceUpdateInput>req.body;
+    if(user)
+        try {
+            const existingUser = await FindVandor(user._id);
+
+            if(existingUser)
+                existingUser.serviceAvailable = serviceAvailable;
+
+                const updatedVandor = await existingUser!.save();
+                return res.json(updatedVandor)
+        } catch (error) {
+            return res.json({ message: "Some error occure in UpdateVandorService!" })
+        }
+    return res.json({ message: "Auth token has been expired!" })
 }

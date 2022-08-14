@@ -20,6 +20,10 @@ export interface VandorUpdateInput {
     foodtype?: [string];
 }
 
+export interface VandorServiceUpdateInput {
+    serviceAvailable: boolean;
+}
+
 export interface VandorLoginInput {
     email: string;
     password: string;
