@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 
+import { Food } from '../models';
+
 import { FindVandor } from './AdminController';
 
-import { VandorLoginInput, VandorServiceUpdateInput, VandorUpdateInput } from '../dto/index.dto';
+import { VandorLoginInput, VandorServiceUpdateInput, VandorUpdateInput, CreateFoodInput } from '../dto/index.dto';
 import { GenerateSignature, ValidatePassword } from '../utility';
-import { Vandor } from '../models';
 
 export const VandorLogin = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = <VandorLoginInput>req.body;
@@ -51,7 +52,15 @@ export const GetVandorProfile = async (req: Request, res: Response, next: NextFu
 
 export const UpdateVandorProfile = async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-    const { email, name, foodtype, address, phone, pincode } = <VandorUpdateInput>req.body;
+    const {
+        email,
+        name,
+        foodtype,
+        address,
+        phone,
+        pincode
+    } = <VandorUpdateInput>req.body;
+
     if (user)
         try {
             const existingUser = await FindVandor(user._id);
@@ -87,6 +96,44 @@ export const UpdateVandorService = async (req: Request, res: Response, next: Nex
     return res.json({ message: "Auth token has been expired!" })
 }
 
+export const AddFood = async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user;
+    if (user)
+        try {
+            const vandor = await FindVandor(user._id);
+            if (!vandor)
+                return res.json({ message: "Vandor not found!" })
+
+            const {
+                category,
+                description,
+                foodType,
+                name,
+                price,
+                readyTime
+            } = <CreateFoodInput>req.body;
+
+            const createFood = await Food.create({
+                vandorId: vandor._id,
+                name,
+                price,
+                category,
+                readyTime,
+                description,
+                foodType,
+                image: ['1.jpg'],
+            })
+
+            vandor.foods.push(createFood);
+            const result = await vandor.save();
+
+            return res.json(result);
+        } catch (error) {
+            return res.json({ message: "Some error occure in AddFood!" })
+        }
+    return res.json({ message: "Auth token has been expired!" })
+}
+
 export const GetFood = async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
     if (user)
@@ -94,17 +141,6 @@ export const GetFood = async (req: Request, res: Response, next: NextFunction) =
             return res.json('')
         } catch (error) {
             return res.json({ message: "Some error occure in GetFood!" })
-        }
-    return res.json({ message: "Auth token has been expired!" })
-}
-
-export const AddFood = async (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user;
-    if (user)
-        try {
-            return res.json('')
-        } catch (error) {
-            return res.json({ message: "Some error occure in AddFood!" })
         }
     return res.json({ message: "Auth token has been expired!" })
 }
