@@ -1,28 +1,18 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import path from 'path';
+import express from "express";
+import App from './app/services/ExpressApp'
+import dbConnection from './app/services/Database'
 
-import { AdminRoute, VandorRoute } from './app/routes';
-import { MONGO_URI } from './app/config';
 
-const app = express();
+const StartServer = async () => {
+    const app = express();
 
-app.use(cors())
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+    await dbConnection();
 
-app.use('/images', express.static(path.join(__dirname, 'images')))
-app.use('/admin', AdminRoute)
-app.use('/vandor', VandorRoute)
+    await App(app);
 
-mongoose.connect(MONGO_URI, {}).then( res => {
-    console.log('Mongodb connected successfully');
-}).catch(err => {
-    console.log('Error =>', err);
-})
+    app.listen(8000, () => {
+        console.log('Server is running on http://localhost:8000/')
+    })
+}
 
-app.listen(8000, () => {
-    console.log('Server is running on http://localhost:8000/')
-})
+StartServer();

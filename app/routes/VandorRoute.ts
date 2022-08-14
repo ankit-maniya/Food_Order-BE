@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 
-import { VandorLogin, GetVandorProfile, UpdateVandorProfile, UpdateVandorService, UpdateCoverImages, AddFood, GetFood } from '../controller/VandorController';
+import { VandorLogin, GetVandorProfile, UpdateVandorProfile, UpdateVandorService, UpdateCoverImages, AddFood, GetFood } from '../controller';
 import { Authenticate } from '../middleware';
 import { uploadImage } from '../utility';
 
