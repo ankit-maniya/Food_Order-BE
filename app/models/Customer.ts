@@ -3,6 +3,7 @@ import mongoose, { Document, Schema, Model, Types } from "mongoose";
 export interface CustomerDoc extends Document<Types.ObjectId> {
     email: string;
     password: string;
+    phone: string;
     salt: string;
     firstName: string;
     lastName: string;
@@ -17,6 +18,7 @@ export interface CustomerDoc extends Document<Types.ObjectId> {
 
 const CustomerSchema = new Schema({
     name: { type: String },
+    phone: { type: String },
     email: { type: String },
     password: { type: String },
     salt: { type: String },

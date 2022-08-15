@@ -13,6 +13,18 @@ export class CreateCustomerInput {
     password: string;
 }
 
+export class UpdateCustomerInput {
+
+    @Length(3, 12)
+    firstName: string;
+
+    @Length(3, 12)
+    lastName: string;
+    
+    @Length(2, 80)
+    address: string;
+}
+
 export class UserLoginInputs {
 
     @IsEmail()
