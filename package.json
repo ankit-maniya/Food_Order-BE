@@ -4,7 +4,7 @@
   "description": "Food Ordering system API development",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon app/index.ts",
+    "dev": "nodemon src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc -p .",
     "postinstall": "npm run build",
