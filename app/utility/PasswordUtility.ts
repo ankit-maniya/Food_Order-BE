@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 
 import { APP_SECRATE } from '../config';
 
-import { VandorPayload } from '../dto/Vandor.dto';
 import { AuthPayload } from '../dto/Auth.dto';
 
 export const GenerateSalt = async () => {
@@ -19,7 +18,7 @@ export const ValidatePassword = async (password: string, savedPassword: string, 
     return await bcrypt.compare(password, savedPassword);
 }
 
-export const GenerateSignature = async (payload: VandorPayload) => {
+export const GenerateSignature = async (payload: AuthPayload) => {
     return await jwt.sign(payload, APP_SECRATE, { expiresIn: '10h' })
 }
 

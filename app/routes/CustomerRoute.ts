@@ -1,5 +1,6 @@
 import express from 'express'
 import { LogIn, Otp, Profile, SignUp, UpdateProfile, VerifyAccount } from '../controller'
+import { Authenticate } from '../middleware'
 
 const router = express.Router()
 
@@ -10,6 +11,7 @@ router.post('/signup', SignUp)
 router.post('/login', LogIn)
 
 /* verify account */
+router.use(Authenticate)
 router.patch('/verifyaccount', VerifyAccount)
 
 /* OTP */
