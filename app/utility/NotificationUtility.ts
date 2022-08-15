@@ -8,8 +8,8 @@ export const GenerateOtp = () => {
 }
 
 export const onRequestOtp = async (otp: number, to: number) => {
-    var accountSid = 'AC3f6d005beddb1073c13e266d6e7f9905'; // Your Account SID from www.twilio.com/console
-    var authToken = '082a259ca6e082696d31e3acf238e2b5';   // Your Auth Token from www.twilio.com/console
+    var accountSid = ''; // Your Account SID from www.twilio.com/console
+    var authToken = '';   // Your Auth Token from www.twilio.com/console
 
     var twilio = require('twilio');
     var client = new twilio(accountSid, authToken);
