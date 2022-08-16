@@ -20,7 +20,7 @@ export class UpdateCustomerInput {
 
     @Length(3, 12)
     lastName: string;
-    
+
     @Length(2, 80)
     address: string;
 }
@@ -38,4 +38,9 @@ export interface CustomerPayload {
     _id: Types.ObjectId;
     email: string;
     verified: boolean;
+}
+
+export interface CreateOrderInputs {
+    _id: Types.ObjectId;
+    unit: Number
 }

@@ -1,5 +1,5 @@
 import express from 'express'
-import { LogIn, Otp, Profile, SignUp, UpdateProfile, VerifyAccount } from '../controller'
+import { CreateOrder, GetOrderById, GetOrders, LogIn, Otp, Profile, SignUp, UpdateProfile, VerifyAccount } from '../controller'
 import { Authenticate } from '../middleware'
 
 const router = express.Router()
@@ -20,5 +20,10 @@ router.get('/otp', Otp)
 /* Profile */
 router.get('/profile', Profile)
 router.patch('/updateprofile', UpdateProfile)
+
+/* Orders */
+router.post('/createOrder', CreateOrder)
+router.get('/getOrders', GetOrders)
+router.get('/getOrderById/:orderId', GetOrderById)
 
 export { router as CustomerRoute }

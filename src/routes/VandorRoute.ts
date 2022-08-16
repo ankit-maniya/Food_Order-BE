@@ -6,8 +6,9 @@ import { uploadImage } from '../utility';
 
 const router = express.Router();
 
-router.use(Authenticate)
 router.post('/login', VandorLogin)
+
+router.use(Authenticate)
 router.get('/profile', GetVandorProfile)
 router.patch('/profile', UpdateVandorProfile)
 router.patch('/service', UpdateVandorService)

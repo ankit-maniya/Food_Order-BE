@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer'
 
-import { CreateCustomerInput, UpdateCustomerInput, UserLoginInputs } from '../dto/index.dto';
-import { Customer, CustomerDoc } from '../models';
+import { CreateCustomerInput, CreateOrderInputs, UpdateCustomerInput, UserLoginInputs } from '../dto/index.dto';
+import { Customer, CustomerDoc, Food } from '../models';
 import { GenerateOtp, GeneratePassword, GenerateSalt, GenerateSignature, onRequestOtp, ValidatePassword, validateSignature } from '../utility';
+import { Order } from '../models/Order';
 
 export const SignUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -37,6 +38,7 @@ export const SignUp = async (req: Request, res: Response, next: NextFunction) =>
             verified: false,
             lat: 0,
             lng: 0,
+            order: []
         })
 
         if (!result)
@@ -166,7 +168,7 @@ export const UpdateProfile = async (req: Request, res: Response, next: NextFunct
         const customerInputs = await plainToClass(UpdateCustomerInput, req.body);
         const inputErrors = await validate(customerInputs, { validationError: { target: false } })
 
-        if(inputErrors.length > 0)
+        if (inputErrors.length > 0)
             return res.json(inputErrors);
 
         if (!customer)
@@ -187,3 +189,86 @@ export const UpdateProfile = async (req: Request, res: Response, next: NextFunct
         return res.json({ message: "Something wrong in UpdateProfile" })
     }
 }
+
+export const CreateOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const customer = req.user;
+
+        if (!customer)
+            return res.json({ message: "Token Has been expired!" })
+
+        const orderId = `${Math.floor(Math.random() * 89999) + 1000}`;
+
+        const profile = await Customer.findById(customer._id)
+        if (!profile)
+            return res.json({ message: "User not found!" })
+
+        const cart = <[CreateOrderInputs]>req.body;
+        let cartItem = Array();
+        let netAmount = 0.0;
+
+        const foods = await Food.find().where('_id').in(cart.map((item) => item._id)).exec();
+
+        foods.map((food) => {
+            cart.map(({ _id, unit }) => {
+                if (food._id == _id)
+                    netAmount += (food.price * Number(unit));
+                cartItem.push({ food, unit })
+            })
+        })
+
+        // Create Order
+        if (cartItem.length <= 0)
+            return res.json({ message: 'Cart is Empty!' })
+
+        const createOrder = await Order.create({
+            OrderId: orderId,
+            items: cartItem,
+            totalAmount: netAmount,
+            orderDate: new Date(),
+            paidThrough: 'COD',
+            paymentResponse: '',
+            orderStatus: 'waiting'
+        })
+
+        if (!createOrder)
+            return res.json({ message: 'Order is not generated!' })
+
+        profile.order.push(createOrder);
+        await profile.save();
+
+        return res.json(createOrder)
+    } catch (error) {
+        return res.json({ message: "Something wrong in CreateOrder" })
+    }
+}
+
+export const GetOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const customer = req.user;
+
+        if (!customer)
+            return res.json({ message: "Token Has been expired!" })
+
+        const orders = await Customer.findById(customer._id).populate('order');
+        return res.json(orders)
+    } catch (error) {
+        return res.json({ message: "Something wrong in GetOrders" })
+    }
+}
+
+export const GetOrderById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const customer = req.user;
+        const { orderId } = req.params;
+
+        if (!customer)
+            return res.json({ message: "Token Has been expired!" })
+
+        const orders = await Order.findById(orderId).populate('items.food')
+        return res.json(orders)
+    } catch (error) {
+        return res.json({ message: "Something wrong in GetOrderById" })
+    }
+}
+
