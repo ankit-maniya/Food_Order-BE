@@ -206,12 +206,14 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
         const cart = <[CreateOrderInputs]>req.body;
         let cartItem = Array();
         let netAmount = 0.0;
+        let vandorId;
 
         const foods = await Food.find().where('_id').in(cart.map((item) => item._id)).exec();
 
         foods.map((food) => {
             cart.map(({ _id, unit }) => {
                 if (food._id == _id)
+                    vandorId = food.vandorId; 
                     netAmount += (food.price * Number(unit));
                 cartItem.push({ food, unit })
             })
@@ -222,13 +224,18 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
             return res.json({ message: 'Cart is Empty!' })
 
         const createOrder = await Order.create({
-            OrderId: orderId,
+            orderId,
+            vandorId,
             items: cartItem,
             totalAmount: netAmount,
             orderDate: new Date(),
             paidThrough: 'COD',
             paymentResponse: '',
-            orderStatus: 'waiting'
+            orderStatus: 'waiting',
+            readyTime: 45,
+            deliveryId: '',
+            appliedOffers: false,
+            offerId: '',
         })
 
         if (!createOrder)

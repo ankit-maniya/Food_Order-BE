@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-import { Food } from '../models';
+import { Food, Order } from '../models';
 
 import { FindVandor } from './AdminController';
 
@@ -67,8 +67,8 @@ export const UpdateVandorProfile = async (req: Request, res: Response, next: Nex
 
             if (existingUser)
                 existingUser.email = email;
-            existingUser!.address = address;
-            existingUser!.name = name;
+                existingUser!.address = address;
+                existingUser!.name = name;
 
             const isUpdateUser = await existingUser!.save();
             return res.json(isUpdateUser)
@@ -119,57 +119,108 @@ export const UpdateCoverImages = async (req: Request, res: Response, next: NextF
 
 export const AddFood = async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-    if (user)
-        try {
-            const vandor = await FindVandor(user._id);
-            if (!vandor)
-                return res.json({ message: "Vandor not found!" })
+    if (!user)
+        return res.json({ message: "Auth token has been expired!" })
 
-            const {
-                category,
-                description,
-                foodType,
-                name,
-                price,
-                readyTime
-            } = <CreateFoodInput>req.body;
+    try {
+        const vandor = await FindVandor(user._id);
+        if (!vandor)
+            return res.json({ message: "Vandor not found!" })
 
-            const files = req.files as [Express.Multer.File];
-            const images = files.map((file: Express.Multer.File) => file.filename);
+        const {
+            category,
+            description,
+            foodType,
+            name,
+            price,
+            readyTime
+        } = <CreateFoodInput>req.body;
 
-            const createFood = await Food.create({
-                vandorId: vandor._id,
-                name,
-                price,
-                category,
-                readyTime,
-                description,
-                foodType,
-                images: images,
-            })
+        const files = req.files as [Express.Multer.File];
+        const images = files.map((file: Express.Multer.File) => file.filename);
 
-            vandor.foods.push(createFood);
-            const result = await vandor.save();
+        const createFood = await Food.create({
+            vandorId: vandor._id,
+            name,
+            price,
+            category,
+            readyTime,
+            description,
+            foodType,
+            images: images,
+        })
 
-            return res.json(result);
-        } catch (error) {
-            return res.json({ message: "Some error occure in AddFood!" })
-        }
-    return res.json({ message: "Auth token has been expired!" })
+        vandor.foods.push(createFood);
+        const result = await vandor.save();
+
+        return res.json(result);
+    } catch (error) {
+        return res.json({ message: "Some error occure in AddFood!" })
+    }
 }
 
 export const GetFood = async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user;
-    if (user)
-        try {
-            const vandor = await FindVandor(user._id);
-            if (!vandor)
-                return res.json({ message: "Vandor not found!" })
+    if (!user)
+        return res.json({ message: "Auth token has been expired!" })
 
-            const allFoods = await Food.find({ vandorId: vandor._id });
-            return res.json(allFoods);
-        } catch (error) {
-            return res.json({ message: "Some error occure in GetFood!" })
-        }
-    return res.json({ message: "Auth token has been expired!" })
+    try {
+        const vandor = await FindVandor(user._id);
+        if (!vandor)
+            return res.json({ message: "Vandor not found!" })
+
+        const allFoods = await Food.find({ vandorId: vandor._id });
+        return res.json(allFoods);
+    } catch (error) {
+        return res.json({ message: "Some error occure in GetFood!" })
+    }
+}
+
+
+export const GetCurrentOrders = async (req: Request, res: Response, next:NextFunction) => {
+    const orderId = req.params.id;
+    if (!orderId)
+        return res.json({ message: "Please add required fields!" })
+
+    try {
+        const orders = await Order.findById(orderId).populate("items.food")
+        return res.json(orders);
+    } catch (error) {
+        return res.json({ message: "Some error occure in GetCurrentOrders!" })
+    }
+}
+
+export const GetOrderDetails = async (req: Request, res: Response, next:NextFunction) => {
+    const user = req.user;
+    if (!user)
+        return res.json({ message: "Auth token has been expired!" })
+
+    try {
+        const orders = await Order.find({ vandorId: user._id }).populate("items.food")
+        return res.json(orders);
+    } catch (error) {
+        return res.json({ message: "Some error occure in GetOrderDetails!" })
+    }
+}
+
+export const ProcessOrder = async (req: Request, res: Response, next:NextFunction) => {
+    const orderId = req.params.id;
+    const { status, remarks, time } = req.body;
+    if (!orderId)
+        return res.json({ message: "Please add required fields!" })
+
+    try {
+        const order = await Order.findById(orderId).populate("items.food")
+        order!.orderStatus = status;
+        order!.remarks = remarks;
+
+        if(time)
+            order!.readyTime = time;
+
+        const orderResult = await order!.save();
+
+        return res.json(orderResult);
+    } catch (error) {
+        return res.json({ message: "Some error occure in ProcessOrder!" })
+    }
 }
